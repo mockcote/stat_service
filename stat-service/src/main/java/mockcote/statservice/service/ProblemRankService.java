@@ -4,6 +4,7 @@ import java.util.List;
 
 import mockcote.statservice.dto.ProblemRankRequest;
 import mockcote.statservice.dto.ProblemRankResponse;
+import mockcote.statservice.dto.TotalRankResponse;
 
 public interface ProblemRankService {
     /**
@@ -33,5 +34,17 @@ public interface ProblemRankService {
      */
     void incrementUserScoreAndRecalculateRankings(String handle);
 
+    /**
+     * 특정 사용자의 score와 ranking 정보를 조회합니다.
+     * @param handle 사용자 ID
+     * @return 사용자 랭킹 정보
+     */
+    TotalRankResponse getUserRankInfo(String handle);
+
+    /**
+     * 전체 사용자의 score와 ranking 정보를 조회합니다.
+     * @return 전체 사용자 랭킹 정보 리스트
+     */
+    List<TotalRankResponse> getAllUserRankInfo();
 
 }

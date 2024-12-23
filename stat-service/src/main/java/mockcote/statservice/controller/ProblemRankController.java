@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mockcote.statservice.dto.ProblemRankRequest;
 import mockcote.statservice.dto.ProblemRankResponse;
+import mockcote.statservice.dto.TotalRankResponse;
 import mockcote.statservice.service.ProblemRankService;
 
 @Slf4j
@@ -51,6 +52,20 @@ public class ProblemRankController {
     public ResponseEntity<?> incrementUserScore(@RequestParam String handle) {
     	problemRankService.incrementUserScoreAndRecalculateRankings(handle);
         return ResponseEntity.ok().build();
+    }
+    
+    // 특정 사용자의 score와 ranking 정보 조회
+    @GetMapping("/user")
+    public ResponseEntity<TotalRankResponse> getUserRankInfo(@RequestParam String handle) {
+        TotalRankResponse response = problemRankService.getUserRankInfo(handle);
+        return ResponseEntity.ok(response);
+    }
+
+    // 전체 사용자 score와 ranking 정보 조회
+    @GetMapping("/all")
+    public ResponseEntity<List<TotalRankResponse>> getAllUserRankInfo() {
+        List<TotalRankResponse> response = problemRankService.getAllUserRankInfo();
+        return ResponseEntity.ok(response);
     }
 
 }

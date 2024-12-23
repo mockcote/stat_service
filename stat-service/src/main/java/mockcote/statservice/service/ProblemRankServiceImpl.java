@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mockcote.statservice.dto.ProblemRankRequest;
 import mockcote.statservice.dto.ProblemRankResponse;
+import mockcote.statservice.dto.TotalRankResponse;
+import mockcote.statservice.exception.CustomException;
 import mockcote.statservice.model.ProblemRank;
 import mockcote.statservice.model.ProblemRankDirty;
 import mockcote.statservice.model.TotalRank;
@@ -155,6 +158,23 @@ public class ProblemRankServiceImpl implements ProblemRankService {
             rank.setRanking(i + 1); // 1등부터 순서대로 랭킹 갱신
             totalRankRepository.save(rank);
         }
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public TotalRankResponse getUserRankInfo(String handle) {
+        TotalRank totalRank = totalRankRepository.findById(handle)
+            .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
+        return new TotalRankResponse(totalRank.getHandle(), totalRank.getScore(), totalRank.getRanking());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TotalRankResponse> getAllUserRankInfo() {
+        List<TotalRank> allRanks = totalRankRepository.findAllByOrderByRankingAsc();
+        return allRanks.stream()
+            .map(rank -> new TotalRankResponse(rank.getHandle(), rank.getScore(), rank.getRanking()))
+            .collect(Collectors.toList());
     }
 
 

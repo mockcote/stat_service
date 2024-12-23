@@ -15,4 +15,11 @@ public interface TotalRankRepository extends JpaRepository<TotalRank, String> {
      * @return 사용자 랭킹 리스트
      */
     List<TotalRank> findAllByOrderByScoreDesc();
+    
+    /**
+     * 전체 사용자의 점수와 랭킹 정보를 랭킹 순으로 정렬하여 반환합니다.
+     * @return 전체 사용자 랭킹 정보 리스트
+     */
+    List<TotalRank> findAllByOrderByRankingAsc();
+
 }
