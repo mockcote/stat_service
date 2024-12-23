@@ -1,14 +1,21 @@
 package mockcote.statservice.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mockcote.statservice.dto.ProblemRankRequest;
 import mockcote.statservice.dto.ProblemRankResponse;
 import mockcote.statservice.service.ProblemRankService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 @Slf4j
 @RestController
@@ -22,5 +29,12 @@ public class ProblemRankController {
     public ResponseEntity<ProblemRankResponse> updateAndFetchRank(@RequestBody @Valid ProblemRankRequest request) {
         ProblemRankResponse response = problemRankService.updateProblemRank(request);
         return ResponseEntity.ok(response);
+    }
+    
+ // 특정 문제의 전체 랭킹 조회
+    @GetMapping("/problem/{problemId}")
+    public ResponseEntity<List<ProblemRankResponse>> getProblemRank(@PathVariable Integer problemId) {
+        List<ProblemRankResponse> ranks = problemRankService.getProblemRanks(problemId);
+        return ResponseEntity.ok(ranks);
     }
 }

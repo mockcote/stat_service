@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,6 +68,18 @@ public class ProblemRankServiceImpl implements ProblemRankService {
         return new ProblemRankResponse(handle, problemId, userRank);
     }
 
+    @Override
+    public List<ProblemRankResponse> getProblemRanks(Integer problemId) {
+        // 데이터베이스에서 문제 ID에 해당하는 모든 랭킹 조회
+        List<ProblemRank> ranks = problemRankRepository.findByProblemIdOrderByRankingAsc(problemId);
 
+        // ProblemRank 엔티티를 ProblemRankResponse로 변환
+        return ranks.stream()
+                .map(rank -> new ProblemRankResponse(
+                        rank.getHandle(),
+                        rank.getProblemId(),
+                        rank.getRanking()))
+                .collect(Collectors.toList());
+    }
 
 }
