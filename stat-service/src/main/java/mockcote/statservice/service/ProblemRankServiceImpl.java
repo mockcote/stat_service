@@ -131,6 +131,32 @@ public class ProblemRankServiceImpl implements ProblemRankService {
             totalRankRepository.save(rank); // 랭킹 갱신 후 저장
         }
     }
+    
+    
+    @Override
+    @Transactional
+    public void incrementUserScoreAndRecalculateRankings(String handle) {
+        // 1. total_rank에서 handle 조회 또는 초기화
+        TotalRank totalRank = totalRankRepository.findById(handle).orElse(new TotalRank());
+        if (totalRank.getHandle() == null) {
+            totalRank.setHandle(handle);
+            totalRank.setScore(0); // 초기화 점수
+            totalRank.setRanking(0); // 초기화 랭킹
+        }
+
+        // 2. 점수 증가
+        totalRank.setScore(totalRank.getScore() + 1);
+        totalRankRepository.save(totalRank);
+
+        // 3. 전체 랭킹 갱신
+        List<TotalRank> allRanks = totalRankRepository.findAllByOrderByScoreDesc();
+        for (int i = 0; i < allRanks.size(); i++) {
+            TotalRank rank = allRanks.get(i);
+            rank.setRanking(i + 1); // 1등부터 순서대로 랭킹 갱신
+            totalRankRepository.save(rank);
+        }
+    }
+
 
 
 }

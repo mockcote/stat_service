@@ -26,4 +26,12 @@ public interface ProblemRankService {
      * 전체 사용자 점수와 랭킹을 갱신합니다.
      */
     void updateTotalRank();
+    
+    /**
+     * 특정 사용자의 점수를 1 증가시키고, 전체 랭킹을 다시 계산합니다.
+     * @param handle 사용자 ID
+     */
+    void incrementUserScoreAndRecalculateRankings(String handle);
+
+
 }

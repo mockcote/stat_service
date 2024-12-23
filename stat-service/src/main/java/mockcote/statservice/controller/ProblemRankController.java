@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -44,4 +45,12 @@ public class ProblemRankController {
     	problemRankService.updateTotalRank();
         return ResponseEntity.ok().build();
     }
+    
+ // 사용자 점수 1 증가
+    @PostMapping("/increment-score")
+    public ResponseEntity<?> incrementUserScore(@RequestParam String handle) {
+    	problemRankService.incrementUserScoreAndRecalculateRankings(handle);
+        return ResponseEntity.ok().build();
+    }
+
 }
