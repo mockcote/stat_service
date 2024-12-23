@@ -1,26 +1,32 @@
 package mockcote.statservice.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mockcote.statservice.dto.ProblemRankRequest;
 import mockcote.statservice.dto.ProblemRankResponse;
 import mockcote.statservice.model.ProblemRank;
 import mockcote.statservice.model.ProblemRankDirty;
-import mockcote.statservice.model.ProblemRankDirtyRepository;
+import mockcote.statservice.model.TotalRank;
+import mockcote.statservice.repository.ProblemRankDirtyRepository;
 import mockcote.statservice.repository.ProblemRankRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import mockcote.statservice.repository.TotalRankRepository;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProblemRankServiceImpl implements ProblemRankService {
 
+	private final ProblemRankDirtyRepository problemRankDirtyRepository;
     private final ProblemRankRepository problemRankRepository;
-    private final ProblemRankDirtyRepository problemRankDirtyRepository;
+    private final TotalRankRepository totalRankRepository;
 
     @Override
     @Transactional
@@ -81,5 +87,50 @@ public class ProblemRankServiceImpl implements ProblemRankService {
                         rank.getRanking()))
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    @Transactional
+    public void updateTotalRank() {
+        // 1. Dirty = 1인 문제 가져오기
+        List<ProblemRankDirty> dirtyProblems = problemRankDirtyRepository.findByDirty(true);
+
+        // 2. 사용자 점수 계산용 Map 초기화
+        Map<String, Integer> userScores = new HashMap<>();
+
+        // 3. 각 문제의 랭킹 점수를 계산
+        for (ProblemRankDirty dirtyProblem : dirtyProblems) {
+            Integer problemId = dirtyProblem.getProblemId();
+            List<ProblemRank> ranks = problemRankRepository.findByProblemIdOrderByRankingAsc(problemId);
+
+            for (ProblemRank rank : ranks) {
+                int score = 101 - rank.getRanking(); // 1등은 100점, 100등은 1점
+                userScores.put(rank.getHandle(), userScores.getOrDefault(rank.getHandle(), 0) + score);
+            }
+
+            // Dirty 플래그를 0으로 갱신
+            dirtyProblem.setDirty(false);
+            problemRankDirtyRepository.save(dirtyProblem);
+        }
+
+        // 4. TotalRank 테이블 갱신
+        for (Map.Entry<String, Integer> entry : userScores.entrySet()) {
+            String handle = entry.getKey();
+            int score = entry.getValue();
+
+            TotalRank totalRank = totalRankRepository.findById(handle).orElse(new TotalRank());
+            totalRank.setHandle(handle);
+            totalRank.setScore(totalRank.getScore() + score); // 기존 점수에 새로운 점수 추가
+            totalRankRepository.save(totalRank);
+        }
+
+        // 5. 전체 사용자 점수를 기반으로 랭킹 갱신
+        List<TotalRank> allRanks = totalRankRepository.findAllByOrderByScoreDesc();
+        for (int i = 0; i < allRanks.size(); i++) {
+            TotalRank rank = allRanks.get(i);
+            rank.setRanking(i + 1); // 1등부터 랭킹 설정
+            totalRankRepository.save(rank); // 랭킹 갱신 후 저장
+        }
+    }
+
 
 }

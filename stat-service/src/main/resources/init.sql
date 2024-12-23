@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS total_rank (
     ranking INT NOT NULL                         -- 전체 랭킹
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+ALTER TABLE total_rank MODIFY COLUMN ranking INT NOT NULL DEFAULT 0;
+
+
 
 -- 6. problem_rank_dirty 테이블 (문제별 랭킹 갱신 여부)
 --    - 각 문제별 랭킹 갱신이 필요하거나(Dirty) 완료되었는지(0 or 1)를 저장

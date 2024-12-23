@@ -37,4 +37,11 @@ public class ProblemRankController {
         List<ProblemRankResponse> ranks = problemRankService.getProblemRanks(problemId);
         return ResponseEntity.ok(ranks);
     }
+    
+ // 전체 사용자 랭킹 갱신
+    @PostMapping("/total")
+    public ResponseEntity<?> updateTotalRank() {
+    	problemRankService.updateTotalRank();
+        return ResponseEntity.ok().build();
+    }
 }

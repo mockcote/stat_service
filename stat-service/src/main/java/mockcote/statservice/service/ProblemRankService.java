@@ -21,4 +21,9 @@ public interface ProblemRankService {
      * @return 전체 랭킹 리스트
      */
     List<ProblemRankResponse> getProblemRanks(Integer problemId);
+    
+    /**
+     * 전체 사용자 점수와 랭킹을 갱신합니다.
+     */
+    void updateTotalRank();
 }
