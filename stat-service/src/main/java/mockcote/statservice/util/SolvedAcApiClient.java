@@ -35,7 +35,6 @@ public class SolvedAcApiClient {
                 return List.of(); // 빈 리스트 반환
             }
 
-            // 변환 로직: TagStatsItemDto -> UserTagStatsDto
             return response.getItems().stream()
                     .map(item -> {
                         TagDto tag = item.getTag();
