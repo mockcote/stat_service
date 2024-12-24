@@ -179,7 +179,4 @@ public class ProblemRankServiceImpl implements ProblemRankService {
         return allRanks.map(rank -> new TotalRankResponse(rank.getHandle(), rank.getScore(), rank.getRanking()));
     }
 
-
-
-
 }

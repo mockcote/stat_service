@@ -1,16 +1,17 @@
 package mockcote.statservice.util;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import lombok.extern.slf4j.Slf4j;
+import mockcote.statservice.dto.*;
+import mockcote.statservice.exception.CustomException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import mockcote.statservice.dto.TagDisplayNameDto;
-import mockcote.statservice.dto.TagDto;
-import mockcote.statservice.dto.TagStatsResponseDto;
-import mockcote.statservice.dto.UserTagStatsDto;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class SolvedAcApiClient {
 
@@ -55,6 +56,27 @@ public class SolvedAcApiClient {
         }
     }
 
+    // 난이도별 풀이 수 가져오기
+    public List<LevelStatsResponse> fetchUserLevelStats(String handle) {
+        String url = String.format("/user/problem_stats?handle=%s", handle);
+        List<LevelStatsResponse> response = null;
 
+        try {
+            response = webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(LevelStatsResponse[].class)
+                .map(List::of)
+                .block();
+        } catch (Exception e) {
+            log.error("Failed to fetch level stats: {}", e.getMessage());
+            return List.of();
+        }
 
+        if (response == null || response.isEmpty()) {
+            return List.of(); // 빈 리스트 반환
+        }
+
+        return response;
+    }
 }

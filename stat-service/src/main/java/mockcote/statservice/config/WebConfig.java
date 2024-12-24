@@ -2,8 +2,10 @@ package mockcote.statservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
@@ -13,6 +15,17 @@ public class WebConfig implements WebMvcConfigurer {
     public WebClient webClient(WebClient.Builder builder) {
         return builder.build();
     }
+    
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/static/**") // 정적 리소스 경로
+//                .addResourceLocations("classpath:/static/");
+//    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

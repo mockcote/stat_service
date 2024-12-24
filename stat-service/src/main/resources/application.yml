@@ -1,0 +1,43 @@
+# 포트번호
+server:
+  port: 8082
+
+spring:
+  application:
+    name: stat-service
+
+  # DB 설정
+  datasource:
+    url: jdbc:mysql://localhost:3306/mockcote_stat?serverTimezone=Asia/Seoul
+    username: ssafy
+    password: ssafy
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  # JSON 설정
+  jackson:
+    time-zone: Asia/Seoul
+  mvc:
+    format:
+      date-time: yyyy-MM-dd'T'HH:mm:ss
+
+  # 로깅 설정
+  logging:
+    level:
+      root: info
+
+# 태그 목록
+app:
+  target:
+    tags: 자료 구조,그래프 이론,그래프 탐색,너비 우선 탐색,구현,다이나믹 프로그래밍,
+          브루트포스 알고리즘,문자열,정렬,그리디 알고리즘,깊이 우선 탐색,시뮬레이션,
+          백트래킹,이분 탐색,세그먼트 트리,정수론,최단 경로,트리,비트마스킹,데이크스트라,
+          해시를 사용한 집합과 맵,사칙연산,누적 합,조합론,분리 집합,스위핑,트리를 사용한 집합과 맵
