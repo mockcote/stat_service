@@ -2,6 +2,9 @@ package mockcote.statservice.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,9 +66,14 @@ public class ProblemRankController {
 
     // 전체 사용자 score와 ranking 정보 조회
     @GetMapping("/all")
-    public ResponseEntity<List<TotalRankResponse>> getAllUserRankInfo() {
-        List<TotalRankResponse> response = problemRankService.getAllUserRankInfo();
+    public ResponseEntity<Page<TotalRankResponse>> getAllUserRankInfo(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TotalRankResponse> response = problemRankService.getAllUserRankInfo(pageable);
         return ResponseEntity.ok(response);
     }
+
 
 }
