@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -170,12 +172,13 @@ public class ProblemRankServiceImpl implements ProblemRankService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TotalRankResponse> getAllUserRankInfo() {
-        List<TotalRank> allRanks = totalRankRepository.findAllByOrderByRankingAsc();
-        return allRanks.stream()
-            .map(rank -> new TotalRankResponse(rank.getHandle(), rank.getScore(), rank.getRanking()))
-            .collect(Collectors.toList());
+    public Page<TotalRankResponse> getAllUserRankInfo(Pageable pageable) {
+        Page<TotalRank> allRanks = totalRankRepository.findAllByOrderByRankingAsc(pageable);
+
+        // TotalRank를 TotalRankResponse로 변환
+        return allRanks.map(rank -> new TotalRankResponse(rank.getHandle(), rank.getScore(), rank.getRanking()));
     }
+
 
 
 
