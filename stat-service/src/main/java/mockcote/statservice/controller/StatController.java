@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mockcote.statservice.dto.LevelStatsResponse;
 import mockcote.statservice.dto.LogsRequest;
+import mockcote.statservice.model.UserStats;
 import mockcote.statservice.service.StatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,16 @@ public class StatController {
         statService.saveHistory(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    
+
+    /**
+     * 사용자 통계
+     */
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(@RequestParam String handle) {
+        UserStats userStats = statService.getUserStats(handle);
+        return ResponseEntity.ok(userStats);
+    }
+
     /**
      * 태그별 문제 풀이 통계 API
      */
