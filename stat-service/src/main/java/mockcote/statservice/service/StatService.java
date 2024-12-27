@@ -5,6 +5,7 @@ import java.util.List;
 import mockcote.statservice.dto.LevelStatsResponse;
 import mockcote.statservice.dto.LogsRequest;
 import mockcote.statservice.dto.UserTagStatsDto;
+import mockcote.statservice.model.UserStats;
 
 public interface StatService {
 	/**
@@ -29,4 +30,10 @@ public interface StatService {
 	 */
 	List<LevelStatsResponse> getLevelStats(String handle);
 
+	/**
+	 * 유저 통계 가져오기
+	 * @param handle
+	 * @return
+	 */
+	UserStats getUserStats(String handle);
 }

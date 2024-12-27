@@ -90,6 +90,13 @@ public class StatServiceImpl implements StatService {
 	}
 
 	@Override
+	public UserStats getUserStats(String handle) {
+		UserStats userStats = userStatsRepository.findByHandle(handle)
+				.orElseGet(() -> new UserStats(handle));
+		return userStats;
+	}
+
+	@Override
 	public List<UserTagStatsDto> getTagStats(String handle) {
 
 		List<UserTagStatsDto> tagStats = null;
@@ -117,7 +124,5 @@ public class StatServiceImpl implements StatService {
 		List<LevelStatsResponse> response = solvedAcApiClient.fetchUserLevelStats(handle);
 		return response;
 	}
-
-	
 
 }
