@@ -10,6 +10,7 @@ import mockcote.statservice.model.Histories;
 import mockcote.statservice.model.UserStats;
 import mockcote.statservice.repository.HistoryRepository;
 import mockcote.statservice.repository.UserStatsRepository;
+import mockcote.statservice.util.LevelLoader;
 import mockcote.statservice.util.SolvedAcApiClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -122,6 +123,9 @@ public class StatServiceImpl implements StatService {
 	@Override
 	public List<LevelStatsResponse> getLevelStats(String handle) {
 		List<LevelStatsResponse> response = solvedAcApiClient.fetchUserLevelStats(handle);
+		for(LevelStatsResponse levelStats : response) {
+			levelStats.setLevelName(LevelLoader.getLevelName(levelStats.getLevel()));
+		}
 		return response;
 	}
 
