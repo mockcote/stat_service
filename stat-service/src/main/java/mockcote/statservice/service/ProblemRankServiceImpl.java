@@ -20,9 +20,11 @@ import mockcote.statservice.exception.CustomException;
 import mockcote.statservice.model.ProblemRank;
 import mockcote.statservice.model.ProblemRankDirty;
 import mockcote.statservice.model.TotalRank;
+import mockcote.statservice.model.UserStats;
 import mockcote.statservice.repository.ProblemRankDirtyRepository;
 import mockcote.statservice.repository.ProblemRankRepository;
 import mockcote.statservice.repository.TotalRankRepository;
+import mockcote.statservice.repository.UserStatsRepository;
 
 @Slf4j
 @Service
@@ -32,6 +34,7 @@ public class ProblemRankServiceImpl implements ProblemRankService {
 	private final ProblemRankDirtyRepository problemRankDirtyRepository;
     private final ProblemRankRepository problemRankRepository;
     private final TotalRankRepository totalRankRepository;
+    private final UserStatsRepository userStatsRepository;
 
     @Override
     @Transactional
@@ -96,46 +99,58 @@ public class ProblemRankServiceImpl implements ProblemRankService {
     @Override
     @Transactional
     public void updateTotalRank() {
-        // 1. Dirty = 1인 문제 가져오기
-        List<ProblemRankDirty> dirtyProblems = problemRankDirtyRepository.findByDirty(true);
+        // 1. 모든 problem_rank 데이터를 가져옵니다.
+        List<ProblemRank> allProblemRanks = problemRankRepository.findAll();
 
-        // 2. 사용자 점수 계산용 Map 초기화
-        Map<String, Integer> userScores = new HashMap<>();
+        // 2. 사용자별로 그룹화하여 문제를 통해 얻은 점수를 계산합니다.
+        Map<String, Integer> problemScores = allProblemRanks.stream()
+                .collect(Collectors.groupingBy(
+                        ProblemRank::getHandle,
+                        Collectors.summingInt(rank -> 101 - rank.getRanking()) // 1등은 100점, 2등은 99점, ..., 100등은 1점
+                ));
 
-        // 3. 각 문제의 랭킹 점수를 계산
-        for (ProblemRankDirty dirtyProblem : dirtyProblems) {
-            Integer problemId = dirtyProblem.getProblemId();
-            List<ProblemRank> ranks = problemRankRepository.findByProblemIdOrderByRankingAsc(problemId);
+        // 3. user_stats에서 각 사용자의 total_problems 값을 가져옵니다.
+        List<UserStats> allUserStats = userStatsRepository.findAll();
+        Map<String, Integer> userTotalProblems = allUserStats.stream()
+                .collect(Collectors.toMap(
+                        UserStats::getHandle,
+                        UserStats::getTotalProblems,
+                        (existing, replacement) -> existing // 중복 시 기존 값을 유지
+                ));
 
-            for (ProblemRank rank : ranks) {
-                int score = 101 - rank.getRanking(); // 1등은 100점, 100등은 1점
-                userScores.put(rank.getHandle(), userScores.getOrDefault(rank.getHandle(), 0) + score);
-            }
-
-            // Dirty 플래그를 0으로 갱신
-            dirtyProblem.setDirty(false);
-            problemRankDirtyRepository.save(dirtyProblem);
+        // 4. 사용자별 총 점수 계산 (문제 점수 + total_problems)
+        Map<String, Integer> totalUserScores = new HashMap<>();
+        for (UserStats userStats : allUserStats) {
+            String handle = userStats.getHandle();
+            int problemScore = problemScores.getOrDefault(handle, 0);
+            int totalProblems = userStats.getTotalProblems();
+            totalUserScores.put(handle, problemScore + totalProblems);
         }
 
-        // 4. TotalRank 테이블 갱신
-        for (Map.Entry<String, Integer> entry : userScores.entrySet()) {
+        // 5. total_rank 테이블을 업데이트합니다.
+        for (Map.Entry<String, Integer> entry : totalUserScores.entrySet()) {
             String handle = entry.getKey();
-            int score = entry.getValue();
+            int totalScore = entry.getValue();
 
             TotalRank totalRank = totalRankRepository.findById(handle).orElse(new TotalRank());
             totalRank.setHandle(handle);
-            totalRank.setScore(totalRank.getScore() + score); // 기존 점수에 새로운 점수 추가
+            totalRank.setScore(totalScore);
             totalRankRepository.save(totalRank);
         }
 
-        // 5. 전체 사용자 점수를 기반으로 랭킹 갱신
+        // 6. 전체 랭킹을 갱신합니다.
         List<TotalRank> allRanks = totalRankRepository.findAllByOrderByScoreDesc();
         for (int i = 0; i < allRanks.size(); i++) {
             TotalRank rank = allRanks.get(i);
-            rank.setRanking(i + 1); // 1등부터 랭킹 설정
-            totalRankRepository.save(rank); // 랭킹 갱신 후 저장
+            rank.setRanking(i + 1); // 1등부터 순위 설정
+            totalRankRepository.save(rank);
         }
+
+        log.info("Total rankings have been updated successfully.");
     }
+
+
+
     
     
     @Override
