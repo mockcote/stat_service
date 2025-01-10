@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Maven 의존성 캐싱
 COPY stat-service/pom.xml ./stat-service/
-RUN mvn -f ./gateway-service/pom.xml dependency:go-offline
+RUN mvn -f ./stat-service/pom.xml dependency:go-offline
 
 # 프로젝트 소스 복사 및 빌드
 COPY stat-service ./stat-service
