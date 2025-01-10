@@ -16,7 +16,8 @@ public class Histories {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "history_id")
+
+    @Column(name = "history_id") // 테이블의 history_id와 매핑
     private Long id;
 
     @Column(nullable = false)
