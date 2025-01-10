@@ -16,11 +16,6 @@ public class WebConfig implements WebMvcConfigurer {
         return builder.build();
     }
     
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-    
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 모든 엔드포인트에 대해 CORS 설정 적용

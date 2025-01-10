@@ -13,13 +13,14 @@ import mockcote.statservice.repository.UserStatsRepository;
 import mockcote.statservice.util.LevelLoader;
 import mockcote.statservice.util.SolvedAcApiClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,12 @@ public class StatServiceImpl implements StatService {
 		boolean isSolved = "SUCCESS".equals(request.getStatus());
 		updateStats(request.getHandle(), isSolved, request.getDuration());
 	}
+
+	@Override
+	public Page<?> getHistory(String handle, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startTime"));
+        return historyRepository.findByHandle(handle, pageable);
+    }
 
 	// 통계 업데이트
 	@Transactional
